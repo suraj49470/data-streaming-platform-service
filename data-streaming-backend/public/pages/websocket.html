@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Video Stream</title>
+</head>
+<body>
+    <video id="video" controls autoplay></video>
+
+    <script>
+        const videoElement = document.getElementById('video');
+        const socket = new WebSocket('ws://localhost:5000');
+        let mediaSource = new MediaSource();
+        let sourceBuffer;
+        const blobParts = [];
+        const contentType = 'video/mp4';
+
+        videoElement.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', () => {
+            try {
+                sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+                sourceBuffer.addEventListener('updateend', () => {
+                    // No action needed here for this method
+                });
+            } catch (e) {
+                console.error('Error with MediaSource or SourceBuffer:', e);
+            }
+        });
+
+        socket.binaryType = 'arraybuffer';
+
+        socket.addEventListener('message', (event) => {
+            blobParts.push(event.data);
+
+            // Create Blob and set src when all data is received
+            const blob = new Blob(blobParts, { type: contentType });
+            videoElement.src = URL.createObjectURL(blob);
+        });
+
+        socket.addEventListener('close', () => {
+            console.log('WebSocket connection closed');
+        });
+
+        socket.addEventListener('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
+    </script>
+</body>
+</html>
