@@ -16,26 +16,29 @@
         const blobParts = [];
         const contentType = 'video/mp4';
 
-        videoElement.src = URL.createObjectURL(mediaSource);
+        // videoElement.src = URL.createObjectURL(mediaSource);
 
-        mediaSource.addEventListener('sourceopen', () => {
-            try {
-                sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
-                sourceBuffer.addEventListener('updateend', () => {
-                    // No action needed here for this method
-                });
-            } catch (e) {
-                console.error('Error with MediaSource or SourceBuffer:', e);
-            }
-        });
+        // mediaSource.addEventListener('sourceopen', () => {
+        //     try {
+        //         sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+        //         sourceBuffer.addEventListener('updateend', () => {
+        //             // No action needed here for this method
+        //         });
+        //     } catch (e) {
+        //         console.error('Error with MediaSource or SourceBuffer:', e);
+        //     }
+        // });
 
         socket.binaryType = 'arraybuffer';
 
         socket.addEventListener('message', (event) => {
             blobParts.push(event.data);
+            console.log(blobParts);
 
             // Create Blob and set src when all data is received
             const blob = new Blob(blobParts, { type: contentType });
+            console.log(blobParts.length);
+            
             videoElement.src = URL.createObjectURL(blob);
         });
 
